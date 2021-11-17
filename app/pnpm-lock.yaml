@@ -29,7 +29,6 @@ dependencies:
   '@aws-cdk/aws-logs': 1.132.0
   '@aws-cdk/aws-sam': 1.132.0
   '@aws-cdk/core': 1.132.0
-  isxx: 1.0.0-beta.7
   source-map-support: 0.5.20
 
 devDependencies:
@@ -41,6 +40,7 @@ devDependencies:
   '@types/node': 10.17.27
   aws-cdk: 1.132.0
   dotenv: 10.0.0
+  isxx: 1.0.0-beta.7
   jest: 26.6.3
   typescript: 4.4.4
 
@@ -3184,7 +3184,7 @@ packages:
 
   /isxx/1.0.0-beta.7:
     resolution: {integrity: sha512-4bcZTo8rgTX4SDA8PQ26j3x8J8OYDuWkMaL+QW8982P7Rx/84OOzC6Ra3ABRid+G1LGfwiJt03IozqGhYBQc6g==}
-    dev: false
+    dev: true
 
   /jest-changed-files/26.6.2:
     resolution: {integrity: sha512-fDS7szLcY9sCtIip8Fjry9oGf3I2ht/QT21bAHm5Dmf0mD4X3ReNUf17y+bO6fR8WgbIZTlbyG1ak/53cbRzKQ==}
