@@ -7,7 +7,7 @@ CC historical data collector
 | Name                   | Desc                              |
 | ---------------------- | --------------------------------- |
 | [api](./api/README.md) | Serverless functions (AWS lambda) |
-| app                    | Infrastructure stacks (AWS CDK)   |
+| [app](./app/README.md) | Infrastructure stacks (AWS CDK)   |
 
 ## Env
 
