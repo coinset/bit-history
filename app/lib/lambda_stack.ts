@@ -6,6 +6,18 @@ import { resolve } from "path";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
+import { validateEnv } from "./utils/env";
+import { INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN } from "../env";
+import { config } from "dotenv";
+
+config();
+
+const result = validateEnv([INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN]);
+
+if (!result[0]) {
+  console.error("Environment variable is missing");
+  process.exit(1);
+}
 
 const APPLICATION_ID =
   "arn:aws:serverlessrepo:us-east-1:390065572566:applications/deno";
@@ -36,11 +48,12 @@ export class AwsCdkStack extends Stack {
       description: "Bitso ticker historical collector",
       timeout: Duration.seconds(5),
       logRetention: RetentionDays.ONE_WEEK,
+      environment: result[1],
     });
 
-    new Rule(this, "Per10Min", {
-      description: "Trigger per 10 minutes",
-      schedule: Schedule.cron({ minute: "10" }),
+    new Rule(this, "Per1Min", {
+      description: "Trigger per 1 minutes",
+      schedule: Schedule.rate(Duration.minutes(1)),
       targets: [new LambdaFunction(fn, { retryAttempts: 3 })],
     });
   }

@@ -15,6 +15,8 @@ specifiers:
   '@types/jest': ^26.0.10
   '@types/node': 10.17.27
   aws-cdk: 1.132.0
+  dotenv: ^10.0.0
+  isxx: ^1.0.0-beta.7
   jest: ^26.4.2
   source-map-support: ^0.5.16
   typescript: 4.4.4
@@ -27,6 +29,7 @@ dependencies:
   '@aws-cdk/aws-logs': 1.132.0
   '@aws-cdk/aws-sam': 1.132.0
   '@aws-cdk/core': 1.132.0
+  isxx: 1.0.0-beta.7
   source-map-support: 0.5.20
 
 devDependencies:
@@ -37,6 +40,7 @@ devDependencies:
   '@types/jest': 26.0.24
   '@types/node': 10.17.27
   aws-cdk: 1.132.0
+  dotenv: 10.0.0
   jest: 26.6.3
   typescript: 4.4.4
 
@@ -2380,6 +2384,11 @@ packages:
       webidl-conversions: 5.0.0
     dev: true
 
+  /dotenv/10.0.0:
+    resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
+    engines: {node: '>=10'}
+    dev: true
+
   /dreamopt/0.6.0:
     resolution: {integrity: sha1-2BPM2sjTnYrVJndVFKE92mZNa0s=}
     engines: {node: '>=0.4.0'}
@@ -3172,6 +3181,10 @@ packages:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.0
     dev: true
+
+  /isxx/1.0.0-beta.7:
+    resolution: {integrity: sha512-4bcZTo8rgTX4SDA8PQ26j3x8J8OYDuWkMaL+QW8982P7Rx/84OOzC6Ra3ABRid+G1LGfwiJt03IozqGhYBQc6g==}
+    dev: false
 
   /jest-changed-files/26.6.2:
     resolution: {integrity: sha512-fDS7szLcY9sCtIip8Fjry9oGf3I2ht/QT21bAHm5Dmf0mD4X3ReNUf17y+bO6fR8WgbIZTlbyG1ak/53cbRzKQ==}
