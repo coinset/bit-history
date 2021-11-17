@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "path": "api"
+    },
+    {
+      "path": "app"
+    },
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.defaultFormatter": "denoland.vscode-deno",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true
+    }
+  }
+}
