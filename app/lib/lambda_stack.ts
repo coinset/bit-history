@@ -8,14 +8,15 @@ import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { validateEnv } from "./utils/env";
 import { INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN } from "../env";
-import { config } from "dotenv";
+import { setup } from "./setup";
+import { descStage, withStage } from "./utils/format";
 
-config();
+setup();
 
 const result = validateEnv([INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN]);
 
 if (!result[0]) {
-  console.error("Environment variable is missing");
+  console.error(descStage("Environment variable is missing"));
   process.exit(1);
 }
 
@@ -27,7 +28,7 @@ export class AwsCdkStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const denoRuntime = new CfnApplication(this, "DenoRuntime", {
+    const denoRuntime = new CfnApplication(this, withStage("DenoRuntime"), {
       location: {
         applicationId: APPLICATION_ID,
         semanticVersion: DENO_VERSION,
@@ -36,23 +37,23 @@ export class AwsCdkStack extends Stack {
 
     const layer = LayerVersion.fromLayerVersionArn(
       this,
-      "denoRuntimeLayer",
+      withStage("denoRuntimeLayer"),
       denoRuntime.getAtt("Outputs.LayerArn").toString(),
     );
 
-    const fn = new Function(this, "Bitso", {
+    const fn = new Function(this, withStage("Bitso"), {
       runtime: Runtime.PROVIDED_AL2,
       code: Code.fromAsset(resolve(__dirname, "..", "..", "api")),
       handler: "bitso/last_price.handler",
       layers: [layer],
-      description: "Bitso ticker historical collector",
+      description: descStage("Bitso ticker historical collector"),
       timeout: Duration.seconds(5),
       logRetention: RetentionDays.ONE_WEEK,
       environment: result[1],
     });
 
-    new Rule(this, "Per1Min", {
-      description: "Trigger per 1 minutes",
+    new Rule(this, withStage("Per1Min"), {
+      description: descStage("Trigger per 1 minutes"),
       schedule: Schedule.rate(Duration.minutes(1)),
       targets: [new LambdaFunction(fn, { retryAttempts: 3 })],
     });
