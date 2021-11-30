@@ -4,14 +4,17 @@ import { Code, Function, LayerVersion, Runtime } from "@aws-cdk/aws-lambda";
 import { CfnApplication } from "@aws-cdk/aws-sam";
 import { resolve } from "path";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
+import type { IRuleTarget } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { validateEnv } from "./utils/env";
 import { INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN } from "../env";
 import { setup } from "./setup";
-import { descStage, withStage } from "./utils/format";
+import { capitalize, descStage, withStage } from "./utils/format";
 
 setup();
+
+const lastPrices = ["bitso", "coincheck"];
 
 const result = validateEnv([INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN]);
 
@@ -41,21 +44,30 @@ export class AwsCdkStack extends Stack {
       denoRuntime.getAtt("Outputs.LayerArn").toString(),
     );
 
-    const fn = new Function(this, withStage("Bitso"), {
-      runtime: Runtime.PROVIDED_AL2,
-      code: Code.fromAsset(resolve(__dirname, "..", "..", "api")),
-      handler: "bitso/last_price.handler",
-      layers: [layer],
-      description: descStage("Bitso ticker historical collector"),
-      timeout: Duration.seconds(5),
-      logRetention: RetentionDays.ONE_WEEK,
-      environment: result[1],
+    const functions = lastPrices.map((market) => {
+      const name = capitalize(market);
+      const fn = new Function(this, withStage(name), {
+        runtime: Runtime.PROVIDED_AL2,
+        code: Code.fromAsset(resolve(__dirname, "..", "..", "api")),
+        handler: `${market}/last_price.handler`,
+        layers: [layer],
+        description: descStage(`${name} ticker historical collector`),
+        timeout: Duration.seconds(5),
+        logRetention: RetentionDays.ONE_WEEK,
+        environment: result[1],
+      });
+
+      return fn;
     });
+
+    const targets: IRuleTarget[] = functions.map((fn) =>
+      new LambdaFunction(fn, { retryAttempts: 3 })
+    );
 
     new Rule(this, withStage("Per1Min"), {
       description: descStage("Trigger per 1 minutes"),
       schedule: Schedule.rate(Duration.minutes(1)),
-      targets: [new LambdaFunction(fn, { retryAttempts: 3 })],
+      targets,
     });
   }
 }

@@ -33,3 +33,4 @@ function writeBatch(market: string, last: LastPrice[]) {
 }
 
 export { writeBatch };
+export type { LastPrice };
