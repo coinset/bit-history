@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - main
 
 jobs:
   release:
@@ -15,6 +16,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "::set-output name=name::${GITHUB_REF#refs/heads/}"
+        id: branch
 
       - name: CD
         run: cd app
@@ -41,13 +47,13 @@ jobs:
           actions_comment: false
           working_dir: app
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets.INFLUX_DB_BUCKET_DEV }}
-          INFLUX_DB_ORG: ${{ secrets.INFLUX_DB_ORG_DEV }}
-          INFLUX_DB_TOKEN: ${{ secrets.INFLUX_DB_TOKEN_DEV }}
-          STAGE: dev
+          INFLUX_DB_BUCKET: ${{ secrets.[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
+          INFLUX_DB_ORG: ${{ secrets.[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
+          INFLUX_DB_TOKEN: ${{ secrets.[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
+          STAGE: ${{ steps.branch.outputs.name^^ }}
 
       - name: Deploy
         uses: youyo/aws-cdk-github-actions@v2
@@ -57,11 +63,11 @@ jobs:
           actions_comment: false
           working_dir: app
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets.INFLUX_DB_BUCKET_DEV }}
-          INFLUX_DB_ORG: ${{ secrets.INFLUX_DB_ORG_DEV }}
-          INFLUX_DB_TOKEN: ${{ secrets.INFLUX_DB_TOKEN_DEV }}
-          STAGE: dev
+          INFLUX_DB_BUCKET: ${{ secrets.[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
+          INFLUX_DB_ORG: ${{ secrets.[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
+          INFLUX_DB_TOKEN: ${{ secrets.[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
+          STAGE: ${{ steps.branch.outputs.name^^ }}
 
