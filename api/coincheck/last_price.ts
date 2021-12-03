@@ -8,7 +8,7 @@ import { writeBatch } from "../_utils/influx.ts";
 
 import { upperCase } from "../_utils/case.ts";
 
-async function getLastPrices(): Promise<LastPrice[]> {
+export async function getLastPrices(): Promise<LastPrice[]> {
   const result = await Promise.all(ALL_RATE_PAIRS.map(async (pair) => {
     const result = await fetchRate({ pair }).catch(console.error);
     if (!result) return;
