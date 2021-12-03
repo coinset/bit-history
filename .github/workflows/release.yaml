@@ -47,12 +47,12 @@ jobs:
           actions_comment: false
           working_dir: app
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets.[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
-          INFLUX_DB_ORG: ${{ secrets.[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
-          INFLUX_DB_TOKEN: ${{ secrets.[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
+          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
+          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
+          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
           STAGE: ${{ steps.branch.outputs.name^^ }}
 
       - name: Deploy
@@ -63,11 +63,11 @@ jobs:
           actions_comment: false
           working_dir: app
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', env.STAGE )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', env.STAGE )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets.[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
-          INFLUX_DB_ORG: ${{ secrets.[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
-          INFLUX_DB_TOKEN: ${{ secrets.[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
+          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', env.STAGE )] }}
+          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', env.STAGE )] }}
+          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', env.STAGE )] }}
           STAGE: ${{ steps.branch.outputs.name^^ }}
 
