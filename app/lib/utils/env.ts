@@ -1,9 +1,9 @@
 import { isString } from "isxx";
 import { STAGE } from "../../env";
 
-type Stage = "dev" | "prod";
+type Stage = "DEV" | "MAIN";
 
-const DEFAULT_STAGE: Stage = "dev";
+const DEFAULT_STAGE: Stage = "DEV";
 
 function validateEnv<T extends string>(key: T[]): [false, {}] | [
   true,
@@ -24,7 +24,7 @@ function validateEnv<T extends string>(key: T[]): [false, {}] | [
 
 function isProd(stage?: Stage): boolean {
   const _stage = stage ?? process.env[STAGE];
-  return _stage === "prod";
+  return _stage === "MAIN";
 }
 
 export { DEFAULT_STAGE, isProd, validateEnv };
