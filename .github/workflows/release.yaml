@@ -1,0 +1,78 @@
+name: release
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "::set-output name=name::${GITHUB_REF#refs/heads/}"
+        id: branch
+
+      - id: string
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ steps.branch.outputs.name }}
+
+      - name: CD
+        run: cd app
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.0.2
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
+
+      - name: cdk diff
+        uses: youyo/aws-cdk-github-actions@v2
+        with:
+          cdk_subcommand: diff
+          actions_comment: false
+          working_dir: app
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
+          AWS_DEFAULT_REGION: ap-northeast-1
+          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', steps.string.outputs.uppercase )] }}
+          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', steps.string.outputs.uppercase )] }}
+          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', steps.string.outputs.uppercase )] }}
+          STAGE: ${{ steps.branch.outputs.name }}
+
+      - name: Deploy
+        uses: youyo/aws-cdk-github-actions@v2
+        with:
+          cdk_subcommand: deploy
+          cdk_args: '--require-approval never'
+          actions_comment: false
+          working_dir: app
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
+          AWS_DEFAULT_REGION: ap-northeast-1
+          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', steps.string.outputs.uppercase )] }}
+          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', steps.string.outputs.uppercase )] }}
+          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', steps.string.outputs.uppercase )] }}
+          STAGE: ${{ steps.branch.outputs.name }}
+
