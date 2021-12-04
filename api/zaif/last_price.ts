@@ -25,7 +25,7 @@ export async function handler(): Promise<APIGatewayProxyResultV2> {
   const lastPrices = await getLastPrices(ALL_ZAIF_PAIRS);
 
   try {
-    await writeBatch("coincheck", lastPrices);
+    await writeBatch("zaif", lastPrices);
 
     return {
       statusCode: 200,
