@@ -11,6 +11,7 @@ import { validateEnv } from "./utils/env";
 import { INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN } from "../env";
 import { setup } from "./setup";
 import { capitalize, descStage, withStage } from "./utils/format";
+import { isProd } from "../lib/utils/env";
 
 setup();
 
@@ -64,9 +65,11 @@ export class AwsCdkStack extends Stack {
       new LambdaFunction(fn, { retryAttempts: 3 })
     );
 
+    const minutes = isProd() ? 1 : 5;
+
     new Rule(this, withStage("Per1Min"), {
       description: descStage("Trigger per 1 minutes"),
-      schedule: Schedule.rate(Duration.minutes(1)),
+      schedule: Schedule.rate(Duration.minutes(minutes)),
       targets,
     });
   }
