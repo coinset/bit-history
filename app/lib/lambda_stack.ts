@@ -14,7 +14,7 @@ import { capitalize, descStage, withStage } from "./utils/format";
 
 setup();
 
-const lastPrices = ["bitso", "coincheck"];
+const lastPrices = ["bitso", "coincheck", "zaif"];
 
 const result = validateEnv([INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN]);
 
