@@ -7,32 +7,27 @@ import { Rule, Schedule } from "@aws-cdk/aws-events";
 import type { IRuleTarget } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
-import { validateEnv } from "./utils/env";
-import { INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN } from "../env";
-import { setup } from "./setup";
-import { capitalize, descStage, withStage } from "./utils/format";
-import { isProd } from "../lib/utils/env";
-
-setup();
+import { capitalize } from "./utils/format";
+import { ManagedPolicy, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
 
 const lastPrices = ["bitso", "coincheck", "zaif"];
-
-const result = validateEnv([INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN]);
-
-if (!result[0]) {
-  console.error(descStage("Environment variable is missing"));
-  process.exit(1);
-}
 
 const APPLICATION_ID =
   "arn:aws:serverlessrepo:us-east-1:390065572566:applications/deno";
 const DENO_VERSION = "1.16.0";
 
+interface CustomProps extends StackProps {
+  INFLUX_DB_BUCKET: string;
+  INFLUX_DB_ORG: string;
+  INFLUX_DB_TOKEN_PATH: string;
+  duration: number;
+}
+
 export class AwsCdkStack extends Stack {
-  constructor(scope: App, id: string, props?: StackProps) {
+  constructor(scope: App, id: string, props: CustomProps) {
     super(scope, id, props);
 
-    const denoRuntime = new CfnApplication(this, withStage("DenoRuntime"), {
+    const denoRuntime = new CfnApplication(this, "DenoRuntime", {
       location: {
         applicationId: APPLICATION_ID,
         semanticVersion: DENO_VERSION,
@@ -41,21 +36,43 @@ export class AwsCdkStack extends Stack {
 
     const layer = LayerVersion.fromLayerVersionArn(
       this,
-      withStage("denoRuntimeLayer"),
+      "denoRuntimeLayer",
       denoRuntime.getAtt("Outputs.LayerArn").toString(),
     );
 
+    const {
+      INFLUX_DB_BUCKET,
+      INFLUX_DB_ORG,
+      INFLUX_DB_TOKEN_PATH,
+    } = props;
+
+    const iamRoleForLambda = new Role(this, "IAMRoleForLambda", {
+      roleName: "ssm-secure-string-role",
+      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          "service-role/AWSLambdaBasicExecutionRole",
+        ),
+        ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess"),
+      ],
+    });
+
     const functions = lastPrices.map((market) => {
       const name = capitalize(market);
-      const fn = new Function(this, withStage(name), {
+      const fn = new Function(this, `${market}-last-price`, {
         runtime: Runtime.PROVIDED_AL2,
         code: Code.fromAsset(resolve(__dirname, "..", "..", "api")),
         handler: `${market}/last_price.handler`,
         layers: [layer],
-        description: descStage(`${name} ticker historical collector`),
+        description: `${name} last price collector`,
         timeout: Duration.seconds(5),
         logRetention: RetentionDays.ONE_WEEK,
-        environment: result[1],
+        role: iamRoleForLambda,
+        environment: {
+          INFLUX_DB_BUCKET,
+          INFLUX_DB_ORG,
+          INFLUX_DB_TOKEN_PATH,
+        },
       });
 
       return fn;
@@ -65,11 +82,9 @@ export class AwsCdkStack extends Stack {
       new LambdaFunction(fn, { retryAttempts: 3 })
     );
 
-    const minutes = isProd() ? 1 : 5;
-
-    new Rule(this, withStage("Per1Min"), {
-      description: descStage("Trigger per 1 minutes"),
-      schedule: Schedule.rate(Duration.minutes(minutes)),
+    new Rule(this, `Per${props.duration}Min`, {
+      description: `Trigger per ${props.duration} minutes`,
+      schedule: Schedule.rate(Duration.minutes(props.duration)),
       targets,
     });
   }
