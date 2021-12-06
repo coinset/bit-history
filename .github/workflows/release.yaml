@@ -76,20 +76,16 @@ jobs:
             - recursive: true
               args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - name: cdk diff
-        uses: youyo/aws-cdk-github-actions@v2
-        with:
-          cdk_subcommand: diff
-          cdk_args: ${{ format('-c environment={0}', steps.branch.outputs.name ) }}
-          actions_comment: false
-          working_dir: app
+        run:
+          pnpx cdk -c environment=$steps.branch.outputs.name diff
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Deploy
         uses: youyo/aws-cdk-github-actions@v2
