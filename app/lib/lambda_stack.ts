@@ -2,14 +2,13 @@ import type { App, StackProps } from "@aws-cdk/core";
 import { DockerImage, Duration, Stack } from "@aws-cdk/core";
 import { Code, Function, LayerVersion, Runtime } from "@aws-cdk/aws-lambda";
 import { CfnApplication } from "@aws-cdk/aws-sam";
-import { join, resolve } from "path";
+import { resolve } from "path";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import type { IRuleTarget } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { capitalize } from "./utils/format";
 import { ManagedPolicy, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
-import { homedir } from "os";
 
 const lastPrices = ["bitso", "coincheck", "zaif"];
 
@@ -63,26 +62,21 @@ export class AwsCdkStack extends Stack {
     const functions = lastPrices.map((market) => {
       const input = `/asset-input/${market}/last_price.ts`;
       const name = capitalize(market);
-      const hostPath = join(homedir(), ".cache/deno");
-      console.log(hostPath);
       const fn = new Function(this, `${market}-last-price`, {
         runtime: Runtime.PROVIDED_AL2,
         code: Code.fromAsset(
           resolve(__dirname, "..", "..", "api"),
           {
             bundling: {
+              environment: {
+                DENO_DIR: ".deno_dir",
+              },
               image,
               command: [
                 "bundle",
                 "--no-check",
                 input,
                 "/asset-output/mod.js",
-              ],
-              volumes: [
-                {
-                  containerPath: "/deno-dir",
-                  hostPath,
-                },
               ],
             },
           },
