@@ -33,7 +33,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        deno: [1.16.0]
         node: [16]
 
     steps:
@@ -44,10 +43,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: ${{ matrix.deno }}
-
       - name: Extract branch name
         shell: bash
         run: echo "::set-output name=name::${GITHUB_REF#refs/heads/}"
@@ -57,9 +52,6 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ steps.branch.outputs.name }}
-
-      - name: CD
-        run: cd app
 
       - name: Cache node_modules
         uses: actions/cache@v2
@@ -72,12 +64,14 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: 6.23.6
-          run_install: true
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
 
       - name: cdk diff
         run: |
           cd app
-          pnpm cdk -c environment=$steps.branch.outputs.name diff
+          pnpm cdk -c environment=${{ steps.branch.outputs.name }} diff
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
@@ -86,7 +80,7 @@ jobs:
       - name: Deploy
         run: |
           cd app
-          pnpm cdk -c environment=$steps.branch.outputs.name deploy
+          pnpm cdk -c environment=${{ steps.branch.outputs.name }} deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
