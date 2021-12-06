@@ -63,6 +63,8 @@ export class AwsCdkStack extends Stack {
     const functions = lastPrices.map((market) => {
       const input = `/asset-input/${market}/last_price.ts`;
       const name = capitalize(market);
+      const hostPath = join(homedir(), ".cache/deno");
+      console.log(hostPath);
       const fn = new Function(this, `${market}-last-price`, {
         runtime: Runtime.PROVIDED_AL2,
         code: Code.fromAsset(
@@ -79,7 +81,7 @@ export class AwsCdkStack extends Stack {
               volumes: [
                 {
                   containerPath: "/deno-dir",
-                  hostPath: join(homedir(), ".cache/deno"),
+                  hostPath,
                 },
               ],
             },
