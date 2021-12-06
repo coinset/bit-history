@@ -28,7 +28,13 @@ jobs:
 
   release:
     needs: [test]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -47,9 +53,6 @@ jobs:
         with:
           string: ${{ steps.branch.outputs.name }}
 
-      - name: CD
-        run: cd app
-
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
@@ -60,39 +63,26 @@ jobs:
 
       - uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.0.2
+          version: 6.23.6
           run_install: |
             - recursive: true
               args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
 
       - name: cdk diff
-        uses: youyo/aws-cdk-github-actions@v2
-        with:
-          cdk_subcommand: diff
-          actions_comment: false
-          working_dir: app
+        run: |
+          cd app
+          pnpm cdk -c environment=${{ steps.branch.outputs.name }} diff
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', steps.string.outputs.uppercase )] }}
-          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', steps.string.outputs.uppercase )] }}
-          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', steps.string.outputs.uppercase )] }}
-          STAGE: ${{ steps.branch.outputs.name }}
 
       - name: Deploy
-        uses: youyo/aws-cdk-github-actions@v2
-        with:
-          cdk_subcommand: deploy
-          cdk_args: '--require-approval never'
-          actions_comment: false
-          working_dir: app
+        run: |
+          cd app
+          pnpm cdk deploy -c environment=${{ steps.branch.outputs.name }} --require-approval never
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
-          INFLUX_DB_BUCKET: ${{ secrets[format('INFLUX_DB_BUCKET_{0}', steps.string.outputs.uppercase )] }}
-          INFLUX_DB_ORG: ${{ secrets[format('INFLUX_DB_ORG_{0}', steps.string.outputs.uppercase )] }}
-          INFLUX_DB_TOKEN: ${{ secrets[format('INFLUX_DB_TOKEN_{0}', steps.string.outputs.uppercase )] }}
-          STAGE: ${{ steps.branch.outputs.name }}
 
