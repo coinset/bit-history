@@ -1,16 +1,19 @@
 import type { App, StackProps } from "@aws-cdk/core";
-import { Duration, Stack } from "@aws-cdk/core";
+import { DockerImage, Duration, Stack } from "@aws-cdk/core";
 import { Code, Function, LayerVersion, Runtime } from "@aws-cdk/aws-lambda";
 import { CfnApplication } from "@aws-cdk/aws-sam";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import type { IRuleTarget } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { capitalize } from "./utils/format";
 import { ManagedPolicy, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
+import { homedir } from "os";
 
 const lastPrices = ["bitso", "coincheck", "zaif"];
+
+const image = DockerImage.fromRegistry("hayd/alpine-deno");
 
 const APPLICATION_ID =
   "arn:aws:serverlessrepo:us-east-1:390065572566:applications/deno";
@@ -58,17 +61,38 @@ export class AwsCdkStack extends Stack {
     });
 
     const functions = lastPrices.map((market) => {
+      const input = join(`/asset-input/${market}/last_price.ts`);
       const name = capitalize(market);
       const fn = new Function(this, `${market}-last-price`, {
         runtime: Runtime.PROVIDED_AL2,
-        code: Code.fromAsset(resolve(__dirname, "..", "..", "api")),
-        handler: `${market}/last_price.handler`,
+        code: Code.fromAsset(
+          resolve(__dirname, "..", "..", "api"),
+          {
+            bundling: {
+              image,
+              command: [
+                "bundle",
+                "--no-check",
+                input,
+                "/asset-output/mod.js",
+              ],
+              volumes: [
+                {
+                  containerPath: "/deno-dir",
+                  hostPath: join(homedir(), ".cache/deno"),
+                },
+              ],
+            },
+          },
+        ),
+        handler: "mod.handler",
         layers: [layer],
         description: `${name} last price collector`,
         timeout: Duration.seconds(5),
         logRetention: RetentionDays.ONE_WEEK,
         role: iamRoleForLambda,
         environment: {
+          HANDLER_EXT: "js",
           INFLUX_DB_BUCKET,
           INFLUX_DB_ORG,
           INFLUX_DB_TOKEN_PATH,
