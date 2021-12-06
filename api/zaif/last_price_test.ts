@@ -4,7 +4,7 @@ import { safeFetch } from "./last_price.ts";
 
 test("safeFetch", async () => {
   await expect(safeFetch("bch_jpy")).resolves.toEqual({
-    label: "BTCJPY",
+    label: "BCHJPY",
     price: anyNumber(),
   });
 });
