@@ -23,33 +23,35 @@ interface CustomProps extends StackProps {
   INFLUX_DB_ORG: string;
   INFLUX_DB_TOKEN_PATH: string;
   duration: number;
+  envName: string;
 }
 
 export class AwsCdkStack extends Stack {
   constructor(scope: App, id: string, props: CustomProps) {
     super(scope, id, props);
 
-    const denoRuntime = new CfnApplication(this, "DenoRuntime", {
-      location: {
-        applicationId: APPLICATION_ID,
-        semanticVersion: DENO_VERSION,
+    const { envName, INFLUX_DB_BUCKET, INFLUX_DB_ORG, INFLUX_DB_TOKEN_PATH } =
+      props;
+
+    const denoRuntime = new CfnApplication(
+      this,
+      `DenoRuntime-${envName}`,
+      {
+        location: {
+          applicationId: APPLICATION_ID,
+          semanticVersion: DENO_VERSION,
+        },
       },
-    });
+    );
 
     const layer = LayerVersion.fromLayerVersionArn(
       this,
-      "denoRuntimeLayer",
+      `denoRuntimeLayer-${envName}`,
       denoRuntime.getAtt("Outputs.LayerArn").toString(),
     );
 
-    const {
-      INFLUX_DB_BUCKET,
-      INFLUX_DB_ORG,
-      INFLUX_DB_TOKEN_PATH,
-    } = props;
-
-    const iamRoleForLambda = new Role(this, "IAMRoleForLambda", {
-      roleName: "ssm-secure-string-role",
+    const iamRoleForLambda = new Role(this, `IAMRoleForLambda-${envName}`, {
+      roleName: `ssm-secure-string-role-${envName}`,
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName(
@@ -102,7 +104,7 @@ export class AwsCdkStack extends Stack {
       new LambdaFunction(fn, { retryAttempts: 3 })
     );
 
-    new Rule(this, `Per${props.duration}Min`, {
+    new Rule(this, `Per${props.duration}Min-${envName}`, {
       description: `Trigger per ${props.duration} minutes`,
       schedule: Schedule.rate(Duration.minutes(props.duration)),
       targets,

@@ -29,6 +29,10 @@ jobs:
   release:
     needs: [test]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
 
     strategy:
       matrix:
@@ -69,18 +73,14 @@ jobs:
               args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
 
       - name: cdk diff
-        run: |
-          cd app
-          pnpm cdk -c environment=${{ steps.branch.outputs.name }} diff
+        run: pnpm cdk diff -c environment=${{ steps.branch.outputs.name }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
           AWS_DEFAULT_REGION: ap-northeast-1
 
       - name: Deploy
-        run: |
-          cd app
-          pnpm cdk deploy -c environment=${{ steps.branch.outputs.name }} --require-approval never
+        run: pnpm cdk deploy -c environment=${{ steps.branch.outputs.name }} --require-approval never
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
