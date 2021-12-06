@@ -76,6 +76,9 @@ jobs:
             - recursive: true
               args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: cdk diff
         uses: youyo/aws-cdk-github-actions@v2
         with:
