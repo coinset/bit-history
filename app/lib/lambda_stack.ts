@@ -61,7 +61,7 @@ export class AwsCdkStack extends Stack {
     });
 
     const functions = lastPrices.map((market) => {
-      const input = join(`/asset-input/${market}/last_price.ts`);
+      const input = `/asset-input/${market}/last_price.ts`;
       const name = capitalize(market);
       const fn = new Function(this, `${market}-last-price`, {
         runtime: Runtime.PROVIDED_AL2,
