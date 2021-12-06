@@ -80,7 +80,7 @@ jobs:
       - name: Deploy
         run: |
           cd app
-          pnpm cdk -c environment=${{ steps.branch.outputs.name }} deploy
+          pnpm cdk deploy -c environment=${{ steps.branch.outputs.name }} --require-approval never
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
