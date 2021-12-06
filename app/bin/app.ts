@@ -29,6 +29,7 @@ new AwsCdkStack(app, `BitHistory-${envKey}`, {
   INFLUX_DB_ORG,
   INFLUX_DB_TOKEN_PATH,
   duration,
+  envName: envKey,
 });
 
 Tags.of(app).add("environment", envValues["envName"]);
