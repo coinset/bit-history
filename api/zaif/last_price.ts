@@ -5,27 +5,36 @@ import { ZaifPair } from "https://deno.land/x/zaif@v1.0.0-beta.3/public/types.ts
 import { upperCase } from "../_utils/case.ts";
 import type { LastPrice } from "../_utils/influx.ts";
 import { writeBatch } from "../_utils/influx.ts";
+import { concurrencyPromise } from "../_utils/chunk.ts";
 
-export async function getLastPrices(pairs: ZaifPair[]): Promise<LastPrice[]> {
-  const result = await Promise.all(pairs.map(async (pair) => {
-    const result = await fetchLastPrice({ pair }).catch(console.error);
-
-    if (!result || !result.last_price) return;
-
-    return {
-      label: upperCase(pair),
-      price: result.last_price,
-    };
+export async function safeFetch(pair: ZaifPair): Promise<LastPrice | null> {
+  const { last_price } = await fetchLastPrice({ pair }).catch(() => ({
+    last_price: null,
   }));
 
-  return result.filter(Boolean) as LastPrice[];
+  if (last_price) {
+    return {
+      label: upperCase(pair),
+      price: last_price,
+    };
+  }
+  return null;
 }
 
 export async function handler(): Promise<APIGatewayProxyResultV2> {
-  const lastPrices = await getLastPrices(ALL_ZAIF_PAIRS);
+  const promises = ALL_ZAIF_PAIRS.map((pair) => () => safeFetch(pair));
+
+  const result = await concurrencyPromise({
+    promises,
+    concurrency: 10,
+  }, {
+    delay: 1000,
+  });
+
+  const filtered = result.filter(Boolean) as LastPrice[];
 
   try {
-    await writeBatch("zaif", lastPrices);
+    await writeBatch("zaif", filtered);
 
     return {
       statusCode: 200,

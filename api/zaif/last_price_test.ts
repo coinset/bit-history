@@ -1,16 +1,10 @@
-import {
-  anyArray,
-  anyNumber,
-  expect,
-  stringMatching,
-  test,
-} from "../dev_deps.ts";
-import { getLastPrices } from "./last_price.ts";
-import { ALL_ZAIF_PAIRS } from "https://deno.land/x/zaif@v1.0.0-beta.3/public/constants.ts";
+import { anyNumber, expect, test } from "../dev_deps.ts";
 
-test("getLastPrices", async () => {
-  await expect(getLastPrices(ALL_ZAIF_PAIRS)).resolves.toEqual(anyArray({
-    label: stringMatching(/[A-Z]+/),
+import { safeFetch } from "./last_price.ts";
+
+test("safeFetch", async () => {
+  await expect(safeFetch("bch_jpy")).resolves.toEqual({
+    label: "BTCJPY",
     price: anyNumber(),
-  }));
+  });
 });
