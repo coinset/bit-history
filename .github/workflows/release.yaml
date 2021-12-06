@@ -78,7 +78,7 @@ jobs:
 
       - name: cdk diff
         run:
-          pnpm exec cdk -c environment=$steps.branch.outputs.name diff
+          pnpm exec -r cdk -c environment=$steps.branch.outputs.name diff
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
