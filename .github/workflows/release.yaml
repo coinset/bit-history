@@ -34,7 +34,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         deno: [1.16.0]
-        node: 16
+        node: [16]
 
     steps:
       - name: Checkout
