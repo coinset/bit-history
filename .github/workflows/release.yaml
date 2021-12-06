@@ -71,16 +71,14 @@ jobs:
 
       - uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.22.1
-          run_install: |
-            - args: [--frozen-lockfile, --prefer-offline, --ignore-scripts]
+          version: 6.23.6
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
 
       - name: cdk diff
         run:
-          pnpm exec -r cdk -c environment=$steps.branch.outputs.name diff
+          pnpm cdk -c environment=$steps.branch.outputs.name diff
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', steps.string.outputs.uppercase )] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', steps.string.outputs.uppercase )] }}
