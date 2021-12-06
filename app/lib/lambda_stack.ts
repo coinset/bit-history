@@ -51,7 +51,7 @@ export class AwsCdkStack extends Stack {
     );
 
     const iamRoleForLambda = new Role(this, `IAMRoleForLambda-${envName}`, {
-      roleName: "ssm-secure-string-role",
+      roleName: `ssm-secure-string-role-${envName}`,
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName(
