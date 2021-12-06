@@ -86,7 +86,7 @@ export class AwsCdkStack extends Stack {
         handler: "mod.handler",
         layers: [layer],
         description: `${name} last price collector`,
-        timeout: Duration.seconds(5),
+        timeout: Duration.seconds(7),
         logRetention: RetentionDays.ONE_WEEK,
         role: iamRoleForLambda,
         environment: {
