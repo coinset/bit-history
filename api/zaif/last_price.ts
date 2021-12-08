@@ -22,18 +22,18 @@ export async function safeFetch(pair: ZaifPair): Promise<LastPrice | null> {
 }
 
 export async function handler(): Promise<APIGatewayProxyResultV2> {
-  const promises = ALL_ZAIF_PAIRS.splice(0, 10).map((pair) =>
-    () => safeFetch(pair)
+  const promises = await Promise.all(
+    ALL_ZAIF_PAIRS.map(async (pair) => await safeFetch(pair)),
   );
 
-  const result = await concurrencyPromise({
-    promises,
-    concurrency: 10,
-  }, {
-    delay: 1000,
-  });
+  // const result = await concurrencyPromise({
+  //   promises,
+  //   concurrency: 10,
+  // }, {
+  //   delay: 1000,
+  // });
 
-  const filtered = result.filter(Boolean) as LastPrice[];
+  const filtered = promises.filter(Boolean) as LastPrice[];
 
   try {
     await writeBatch("zaif", filtered);
