@@ -21,7 +21,10 @@ type LastPrice = {
 
 function getPoints(market: string, last: LastPrice[]): ArrayLike<Point> {
   return last.map(({ label, price }) => {
-    return new Point(market).floatField(label, price);
+    return new Point("last_price").floatField(label, price).tag(
+      "market",
+      market,
+    );
   });
 }
 

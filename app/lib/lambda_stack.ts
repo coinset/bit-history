@@ -9,10 +9,11 @@ import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { capitalize } from "./utils/format";
 import { ManagedPolicy, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
+import { tmpdir } from "os";
 
 const lastPrices = ["bitso", "coincheck", "zaif"];
 
-const image = DockerImage.fromRegistry("hayd/alpine-deno");
+const image = DockerImage.fromRegistry("denoland/deno");
 
 const APPLICATION_ID =
   "arn:aws:serverlessrepo:us-east-1:390065572566:applications/deno";
@@ -70,15 +71,15 @@ export class AwsCdkStack extends Stack {
           resolve(__dirname, "..", "..", "api"),
           {
             bundling: {
-              environment: {
-                DENO_DIR: ".deno_dir",
-              },
               image,
               command: [
                 "bundle",
                 "--no-check",
                 input,
                 "/asset-output/mod.js",
+              ],
+              volumes: [
+                { containerPath: "/deno-dir", "hostPath": tmpdir() },
               ],
             },
           },
