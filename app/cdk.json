@@ -22,7 +22,7 @@
       },
       "influxDB": {
         "bucket": "crypto_currency_dev",
-        "org": "development.operation6.6.6@gmail.com",
+        "org": "trushaccoun@gmail.com",
         "tokenPath": "/dev/influx-db/token"
       }
     },
@@ -34,7 +34,7 @@
       },
       "influxDB": {
         "bucket": "crypto_currency",
-        "org": "development.operation6.6.6@gmail.com",
+        "org": "trushaccoun@gmail.com",
         "tokenPath": "/main/influx-db/token"
       }
     }

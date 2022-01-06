@@ -4,7 +4,7 @@ const ssm = new SSM({
   accessKeyID: Deno.env.get("AWS_ACCESS_KEY_ID")!,
   secretKey: Deno.env.get("AWS_SECRET_ACCESS_KEY")!,
   sessionToken: Deno.env.get("AWS_SESSION_TOKEN"),
-  region: Deno.env.get("AWS_REGION") ?? "ap-northeast-1",
+  region: Deno.env.get("AWS_REGION") ?? "us-east-1",
 });
 
 const result = await ssm.getParameter({
