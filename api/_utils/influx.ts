@@ -8,7 +8,7 @@ const org = Deno.env.get("INFLUX_DB_ORG")!;
 const bucket = Deno.env.get("INFLUX_DB_BUCKET")!;
 
 const client = new InfluxDB({
-  url: "https://ap-southeast-2-1.aws.cloud2.influxdata.com",
+  url: "https://us-east-1-1.aws.cloud2.influxdata.com",
   token: indexDBToken,
 });
 
