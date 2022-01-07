@@ -17,6 +17,7 @@ const lastPrices = [
   "bitflyer",
   "btcbox",
   "gmocoin",
+  "bitbank",
 ];
 
 const image = DockerImage.fromRegistry("denoland/deno");
