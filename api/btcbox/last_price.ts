@@ -16,7 +16,7 @@ export async function getLastPrices(): Promise<LastPrice[]> {
 export async function handler(): Promise<APIGatewayProxyResultV2> {
   try {
     const lastPrices = await getLastPrices();
-    writeBatch("btcbox", lastPrices);
+    await writeBatch("btcbox", lastPrices);
     return {
       statusCode: 200,
     };
