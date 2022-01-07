@@ -4,7 +4,6 @@ import { Code, Function, LayerVersion, Runtime } from "@aws-cdk/aws-lambda";
 import { CfnApplication } from "@aws-cdk/aws-sam";
 import { resolve } from "path";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
-import type { IRuleTarget } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
 import { RetentionDays } from "@aws-cdk/aws-logs";
 import { capitalize } from "./utils/format";
@@ -69,7 +68,7 @@ export class AwsCdkStack extends Stack {
       ],
     });
 
-    const functions = lastPrices.map((market) => {
+    lastPrices.forEach((market) => {
       const input = `/asset-input/${market}/last_price.ts`;
       const name = capitalize(market);
       const fn = new Function(this, `${market}-last-price`, {
@@ -105,17 +104,13 @@ export class AwsCdkStack extends Stack {
         },
       });
 
-      return fn;
-    });
+      const targets = new LambdaFunction(fn, { retryAttempts: 3 });
 
-    const targets: IRuleTarget[] = functions.map((fn) =>
-      new LambdaFunction(fn, { retryAttempts: 3 })
-    );
-
-    new Rule(this, `Per${props.duration}Min-${envName}`, {
-      description: `Trigger per ${props.duration} minutes`,
-      schedule: Schedule.rate(Duration.minutes(props.duration)),
-      targets,
+      new Rule(this, `${market}-per${props.duration}min-${envName}`, {
+        description: `$[${market}] Trigger per ${props.duration} minutes`,
+        schedule: Schedule.rate(Duration.minutes(props.duration)),
+        targets,
+      });
     });
   }
 }
