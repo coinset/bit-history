@@ -11,7 +11,7 @@ import { capitalize } from "./utils/format";
 import { ManagedPolicy, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
 import { tmpdir } from "os";
 
-const lastPrices = ["bitso", "coincheck", "zaif", "bitflyer"];
+const lastPrices = ["bitso", "coincheck", "zaif", "bitflyer", "btcbox"];
 
 const image = DockerImage.fromRegistry("denoland/deno");
 

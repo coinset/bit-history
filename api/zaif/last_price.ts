@@ -5,7 +5,6 @@ import { ZaifPair } from "https://deno.land/x/zaif@v1.0.0-beta.3/public/types.ts
 import { upperCase } from "../_utils/case.ts";
 import type { LastPrice } from "../_utils/influx.ts";
 import { writeBatch } from "../_utils/influx.ts";
-import { concurrencyPromise } from "../_utils/chunk.ts";
 
 export async function safeFetch(pair: ZaifPair): Promise<LastPrice | null> {
   const { last_price } = await fetchLastPrice({ pair }).catch(() => ({

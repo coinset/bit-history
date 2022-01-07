@@ -9,17 +9,19 @@ test({
       price: 1000,
     });
   },
-  setup: () => {
-    const reset = defineGlobalThis("fetch", () => {
-      return Promise.resolve(
-        new Response(JSON.stringify({
-          ltp: 1000,
-        })),
-      );
-    });
+  setupMap: {
+    mockFetch: () => {
+      const reset = defineGlobalThis("fetch", () => {
+        return Promise.resolve(
+          new Response(JSON.stringify({
+            ltp: 1000,
+          })),
+        );
+      });
 
-    return {
-      teardown: reset,
-    };
+      return {
+        teardown: reset,
+      };
+    },
   },
 });
