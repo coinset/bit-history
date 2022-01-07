@@ -104,12 +104,12 @@ export class AwsCdkStack extends Stack {
         },
       });
 
-      const targets = new LambdaFunction(fn, { retryAttempts: 3 });
+      const target = new LambdaFunction(fn, { retryAttempts: 3 });
 
       new Rule(this, `${market}-per${props.duration}min-${envName}`, {
-        description: `$[${market}] Trigger per ${props.duration} minutes`,
+        description: `$[${market}] trigger per ${props.duration} minutes`,
         schedule: Schedule.rate(Duration.minutes(props.duration)),
-        targets,
+        targets: [target],
       });
     });
   }
