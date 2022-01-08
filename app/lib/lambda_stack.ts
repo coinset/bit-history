@@ -19,6 +19,7 @@ const lastPrices = [
   "gmocoin",
   "bitbank",
   "liquid",
+  "decurrent",
 ];
 
 const image = DockerImage.fromRegistry("denoland/deno");
