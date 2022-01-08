@@ -3,8 +3,8 @@ import {
   jestExtendedMatcherMap,
   jestMatcherMap,
   jestModifierMap,
-} from "https://deno.land/x/unitest@v1.0.0-beta.79/mod.ts";
-export { defineGlobalThis } from "https://deno.land/x/unitest@v1.0.0-beta.79/mock/global_this.ts";
+} from "https://deno.land/x/unitest@v1.0.0-beta.80/mod.ts";
+export { defineGlobalThis } from "https://deno.land/x/unitest@v1.0.0-beta.80/mock/global_this.ts";
 export {
   anyArray,
   anyNumber,
@@ -12,7 +12,7 @@ export {
   anyString,
   stringMatching,
   test,
-} from "https://deno.land/x/unitest@v1.0.0-beta.79/mod.ts";
+} from "https://deno.land/x/unitest@v1.0.0-beta.80/mod.ts";
 
 const expect = defineExpect({
   matcherMap: {
