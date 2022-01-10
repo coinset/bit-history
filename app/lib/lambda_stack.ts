@@ -21,6 +21,7 @@ const lastPrices = [
   "liquid",
   "decurrent",
   "huobi",
+  "coinbase",
 ];
 
 const image = DockerImage.fromRegistry("denoland/deno");
