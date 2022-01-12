@@ -25,7 +25,6 @@ async function lastPrice(
 
 export async function getLastPrices(): Promise<LastPrice[]> {
   const pairs = [
-    ...ALL_COINBASE_SYMBOLS.map((symbol) => `${symbol}-JPY`),
     ...ALL_COINBASE_SYMBOLS.map((symbol) => `${symbol}-USD`),
   ];
 
