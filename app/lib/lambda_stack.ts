@@ -28,6 +28,7 @@ const lastPrices = [
   "okex",
   "ascendex",
   "bitmart",
+  "currency.com",
 ];
 
 const image = DockerImage.fromRegistry("denoland/deno");
