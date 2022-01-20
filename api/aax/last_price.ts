@@ -2,6 +2,7 @@ import { APIGatewayProxyResultV2 } from "../deps.ts";
 import { fetchTickers } from "https://deno.land/x/aax@v1.0.0-beta.1/mod.ts";
 import type { LastPrice } from "../_utils/influx.ts";
 import { writeBatch } from "../_utils/influx.ts";
+import { pairs } from "../scope.ts";
 
 export async function getLastPrices(): Promise<LastPrice[]> {
   const { tickers } = await fetchTickers();
@@ -10,7 +11,7 @@ export async function getLastPrices(): Promise<LastPrice[]> {
     return !!c;
   }).filter(({ s }) => !s.endsWith("_INDEX")).filter(({ s }) =>
     !s.endsWith("FP")
-  ).map(({ s, c }) => ({
+  ).filter(({ s }) => pairs.includes(s)).map(({ s, c }) => ({
     label: s,
     price: c,
   }));
