@@ -2,6 +2,7 @@ import { APIGatewayProxyResultV2 } from "../deps.ts";
 import {
   fetchTickers,
 } from "https://deno.land/x/bitfinex@v1.0.0-beta.1/mod.ts";
+import { pairs } from "../scope.ts";
 import type { LastPrice } from "../_utils/influx.ts";
 import { writeBatch } from "../_utils/influx.ts";
 
@@ -15,7 +16,7 @@ export async function getLastPrices(): Promise<LastPrice[]> {
       label: symbol.substring(1),
       price: last,
     };
-  });
+  }).filter(({ label }) => pairs.includes(label));
 }
 
 export async function handler(): Promise<APIGatewayProxyResultV2> {
