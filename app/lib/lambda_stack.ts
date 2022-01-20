@@ -30,6 +30,7 @@ const lastPrices = [
   "bitmart",
   "currency.com",
   "ftx",
+  "gate_io",
 ];
 
 const image = DockerImage.fromRegistry("denoland/deno");
