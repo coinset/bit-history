@@ -5,5 +5,6 @@ import { isUpper } from "../_utils/case.ts";
 test("getLastPrices", async () => {
   await expect(getLastPrices()).resolves.toEqual(anyArray({
     label: anyString(isUpper),
+    price: anyNumber(),
   }));
 });
