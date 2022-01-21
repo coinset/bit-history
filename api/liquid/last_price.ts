@@ -1,5 +1,6 @@
 import { fetchProducts } from "https://deno.land/x/liquid@v1.1.0-beta.1/mod.ts";
 import { writeBatch } from "../_utils/influx.ts";
+import { pairs } from "../scope.ts";
 import type { LastPrice } from "../_utils/influx.ts";
 import type { APIGatewayProxyResultV2 } from "../deps.ts";
 
@@ -11,7 +12,9 @@ export async function getLastPrices(): Promise<LastPrice[]> {
       label: currency_pair_code,
       price: last_traded_price,
     };
-  }).filter(({ price }) => !!price) as LastPrice[];
+  }).filter(({ label }) => pairs.includes(label)).filter(({ price }) =>
+    !!price
+  ) as LastPrice[];
 }
 
 export async function handler(): Promise<APIGatewayProxyResultV2> {
